@@ -6,12 +6,13 @@ const socket = io.connect("http://localhost:8000");
 
 function App() {
   const [messageInput, setMessageInput] = useState([]);
+  const [room, setRoom] = useState(null);
 
   const [message, setMessage] = useState([]);
 
   const sendMessage = (e) => {
     e.preventDefault();
-    socket.emit("send_message", { message });
+    socket.emit("send_message", { message, room });
     setMessage([...message, messageInput]);
   };
 
@@ -22,6 +23,12 @@ function App() {
     });
   }, [socket]);
 
+  const joinRoom = (e) => {
+    e.preventDefault();
+    if (room === "") return;
+    socket.emit("join_room", room);
+  };
+
   return (
     <div className="App">
       {message.map((m) => (
@@ -30,6 +37,15 @@ function App() {
           <br />
         </>
       ))}
+      <form onSubmit={(e) => joinRoom(e)}>
+        <input
+          type="text"
+          onChange={(e) => setRoom(e.target.value)}
+          placeholder="Room Name..."
+        />
+        <input type="submit" value={"Join Roon"} />
+      </form>
+      <br />
       <form onSubmit={(e) => sendMessage(e)}>
         <input
           type="text"
